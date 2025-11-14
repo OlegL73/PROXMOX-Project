@@ -71,10 +71,17 @@ Prochaines tâches :
 
 ---
 
-## Accès Proxmox
-Accès uniquement depuis le collège.  
-Interface Web : https://172.16.152.227:80
-Accès console - via Proxmox (noVNC).
+## Accès Proxmox :
+- Interface Web Proxmox : https://172.16.152.13:8006 (au collège)
+- Accès console des VM : via Proxmox (noVNC)
+
+---
+
+## Accès GNS3 :
+- GNS3 WebUI : http://172.16.152.227
+- SSH GNS3 VM : ssh gns3@172.16.152.227
+  (mot de passe : gns3)
+  (IP attribuée par DHCP, peut changer — vérifier sur la console Proxmox)
 
 ---
 
