@@ -142,4 +142,35 @@ Fait :
 •	Créer les rôles suivants : DHCP, Web (Apache), DB (MariaDB), HAProxy, Sauvegarde.
 •	Tester la communication interne entre toutes les VM.
 •	Préparer la démonstration du 5 décembre.
+---
+# Rôle Ansible : bdd (Base de données MySQL/MariaDB)
+
+## 🎯 Objectif
+Ce rôle Ansible installe, configure et valide un serveur de base de données MySQL/MariaDB. Il gère les utilisateurs, les permissions, et vérifie l'accès aux données via des requêtes SQL.
+
+## 📦 Fonctionnalités
+- Installation du paquet `mariadb-server`
+- Configuration du service et du fichier `my.cnf`
+- Création de bases de données et d’utilisateurs
+- Attribution de privilèges
+- Vérification de l’accès et manipulation des données (CRUD)
+- 
+Utilisation
+bash
+ansible-playbook -i inventory.yml site.yml
+-
+ Variables
+
+Définies dans group_vars/databases.yml et host_vars/bdd.yml.
+# Journal des activités
+
+## [2025-11-24] Initialisation du rôle `bdd`
+- Création de l’arborescence `roles/bdd`
+- Ajout des fichiers `main.yml` dans `defaults`, `handlers`, `tasks`
+- Création du template `my.cnf.j2`
+- Ajout des variables dans `group_vars` et `host_vars`
+- Mise en place du playbook `site.yml`
+- Tests de connexion SSH et sudo
+- Résolution des erreurs YAML et sudo-rs
+- Validation des accès et manipulation des données via requêtes SQL
 
