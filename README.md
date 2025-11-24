@@ -109,3 +109,37 @@ Prochaines tâches :
 - Tous les enregistrements A fonctionnent (`web1`, `web2`, `bdd`, `haproxy`, etc.).
 - Rôle Ansible complet : templates + tasks + handler.
 - Validé avec `named-checkzone`, `named-checkconf` et `dig`.
+
+
+---
+
+Suivi hebdomadaire – Projet Linux (Proxmox + Ansible)
+
+---
+Semaine du 14 — 17 novembre
+Fait :
+•	Réception officielle de l’énoncé du projet Linux (14 novembre).
+•	Installation de Proxmox sur la machine physique du collège.
+•	Mise en place du routeur VyOS (WAN DHCP / LAN 192.168.1.0/24).
+•	Installation de la GNS3 VM dans Proxmox.
+•	Tests initiaux de connectivité (VyOS ↔ GNS3 ↔ Internet).
+•	Création du dépôt GitHub du projet + ajout du professeur.
+•	Mise en place du tableau « Projects » (Kanban) sur GitHub.
+À faire :
+•	Déployer les premières VM Linux (DHCP, DNS, Web, DB, Backup).
+•	Préparer la structure initiale du projet Ansible (roles/, inventory, ansible.cfg).
+
+Semaine du 18 — 24 novembre
+Fait :
+•	Mise en place complète de la structure Ansible.
+•	Déploiement du serveur Ansible (192.168.1.5).
+•	Développement du rôle DNS (Bind9) avec templates, tasks, handlers et variables.
+•	Correction des erreurs DNS (zone invalide proxmox_oaa.lan).
+•	Renommage complet de la zone en proxmox.lan.
+•	Validation technique complète : named-checkzone OK, named-checkconf OK, dig OK.
+•	Mise à jour du README.md et sauvegarde dans GitHub.
+À faire :
+•	Créer les rôles suivants : DHCP, Web (Apache), DB (MariaDB), HAProxy, Sauvegarde.
+•	Tester la communication interne entre toutes les VM.
+•	Préparer la démonstration du 5 décembre.
+
