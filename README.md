@@ -36,6 +36,11 @@ Les services suivants doivent être déployés et configurés via Ansible :
 
 ---
 
+##Les rôles Ansible terminés :
+-  DNS (Bind9) → voir section *DNS (Bind9)* ci-dessous
+
+---
+
 ## À faire
 Prochaines tâches :
 
@@ -91,6 +96,15 @@ Prochaines tâches :
 2. Créer la structure (`roles/`, `site.yml`, `inventory.ini`)  
 3. Développer un rôle commun (mises à jour, paquets essentiels, SSH)  
 4. Implémenter tous les rôles imposés  
-5. Tester chaque rôle sur des VM propres  
-6. Mettre en place la partie load-balancing / HA  
-7. Finaliser la documentation pour la présentation
+5. Tester chaque rôle sur des VM propres
+   
+### DNS (Bind9)
+
+- Déployé via Ansible sur 192.168.1.20.
+- Zone locale `proxmox.lan` opérationnelle.
+- Tous les enregistrements A fonctionnent (`web1`, `web2`, `bdd`, `haproxy`, etc.).
+- Rôle Ansible complet : templates + tasks + handler.
+- Validé avec `named-checkzone`, `named-checkconf` et `dig`.
+
+7. Mettre en place la partie load-balancing / HA  
+8. Finaliser la documentation pour la présentation
