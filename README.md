@@ -97,7 +97,11 @@ Prochaines tâches :
 3. Développer un rôle commun (mises à jour, paquets essentiels, SSH)  
 4. Implémenter tous les rôles imposés  
 5. Tester chaque rôle sur des VM propres
-   
+6. Mettre en place la partie load-balancing / HA
+7. Finaliser la documentation pour la présentation
+
+---
+
 ### DNS (Bind9)
 
 - Déployé via Ansible sur 192.168.1.20.
@@ -105,6 +109,3 @@ Prochaines tâches :
 - Tous les enregistrements A fonctionnent (`web1`, `web2`, `bdd`, `haproxy`, etc.).
 - Rôle Ansible complet : templates + tasks + handler.
 - Validé avec `named-checkzone`, `named-checkconf` et `dig`.
-
-7. Mettre en place la partie load-balancing / HA  
-8. Finaliser la documentation pour la présentation
