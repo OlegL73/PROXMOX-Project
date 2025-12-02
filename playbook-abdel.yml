@@ -1,0 +1,96 @@
+---
+####################################################################################
+# PLAYBOOK ANSIBLE COMPLET
+# Objectif : Déployer automatiquement quatre types de serveurs :
+#   1. Serveur Web (Apache)
+#   2. Serveur de Base de Données (MariaDB)
+#   3. Serveur DHCP (Kea)
+#   4. Load Balancer HAProxy (entre web1 et web2)
+#
+# Les variables spécifiques à chaque groupe sont définies dans le dossier group_vars/
+####################################################################################
+
+# ---------------------------------------------------------------------
+# 🖥️ 1er PLAY : Installation du serveur Web Apache
+# ---------------------------------------------------------------------
+- name: Installer et configurer Apache sur les serveurs du groupe webserver
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Mettre à jour la liste des paquets
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Installer Apache
+      ansible.builtin.apt:
+        name: "{{ apache_package }}"
+        state: present
+        update_cache: yes
+
+    - name: Créer une page HTML simple
+      ansible.builtin.copy:
+        dest: "{{ apache_index_path }}"
+        content: "{{ apache_index_content }}"
+
+#---------------------------------------------------------------------
+# 📡 2e PLAY : Installation du serveur DHCP Kea
+# ---------------------------------------------------------------------
+- name: Installation et configuration du serveur DHCP Kea
+  hosts: dhcp_servers
+  become: yes
+
+  tasks:
+    - name: Installer Kea DHCP
+      ansible.builtin.apt:
+        name: "{{ kea_package }}"
+        state: present
+        update_cache: yes
+
+    - name: Déployer le fichier de configuration Kea depuis un template
+      ansible.builtin.template:
+        src: templates/kea-dhcp4.conf.j2
+        dest: "{{ kea_config_path }}"
+        owner: "{{ kea_owner }}"
+        group: "{{ kea_group }}"
+        mode: "{{ kea_mode }}"
+
+    - name: Redémarrer le service Kea DHCP
+      ansible.builtin.service:
+        name: "{{ kea_package }}"
+        state: restarted
+
+# ---------------------------------------------------------------------
+# ⚖️ 3e PLAY : Installation du Load Balancer HAProxy
+# ---------------------------------------------------------------------
+- name: Installer et configurer HAProxy comme load balancer entre web1 et web2
+  hosts: haproxy_servers
+  become: yes
+
+  tasks:
+    # -- Étape 1 : Mise à jour des paquets --
+    - name: Mettre à jour la liste des paquets
+      ansible.builtin.apt:
+        update_cache: yes
+
+    # -- Étape 2 : Installer HAProxy --
+    - name: Installer HAProxy
+      ansible.builtin.apt:
+        name: "{{ haproxy_package }}"
+        state: present
+
+    # -- Étape 3 : Déployer le fichier de configuration HAProxy --
+    - name: Déployer la configuration HAProxy depuis un template
+      ansible.builtin.template:
+        src: templates/haproxy.cfg.j2
+        dest: "{{ haproxy_config_path }}"
+        owner: "{{ haproxy_owner }}"
+        group: "{{ haproxy_group }}"
+        mode: "{{ haproxy_mode }}"
+
+    # -- Étape 4 : Redémarrer HAProxy --
+    - name: Redémarrer le service HAProxy
+      ansible.builtin.service:
+        name: "{{ haproxy_service }}"
+        state: restarted
+

@@ -1,0 +1,21 @@
+---
+- name: Installer PostgreSQL pour le catalogue Bacula
+  become: true
+  apt:
+    name:
+      - postgresql
+      - postgresql-client
+    state: present
+    update_cache: true
+    install_recommends: false
+
+- name: Installer Bacula Director et outils
+  become: true
+  apt:
+    name:
+      - bacula-director
+      - bacula-console
+      - bacula-common
+    state: present
+    update_cache: true
+    install_recommends: false

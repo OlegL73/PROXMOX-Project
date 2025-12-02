@@ -1,0 +1,7 @@
+---
+- name: Configuration du serveur de sauvegarde (Bacula)
+  hosts: backup_servers
+  become: true
+
+  roles:
+    - backup

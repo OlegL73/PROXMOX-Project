@@ -1,0 +1,19 @@
+---
+- name: Installation et configuration du serveur MariaDB
+  hosts: database_servers
+  become: true
+  roles:
+    - mariadb
+
+- name: Configuration de la base de données (tables, utilisateurs)
+  hosts: database_servers
+  become: true
+  roles:
+    - bdd
+
+- name: Sauvegarde de la base de données
+  hosts: backup_servers
+  become: true
+  roles:
+    - backup
+

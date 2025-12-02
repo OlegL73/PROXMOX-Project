@@ -1,0 +1,41 @@
+# ===========================================
+  # CONFIGURATION DHCP KEA
+  # Ce fichier est généré automatiquement par Ansible
+  # ===========================================
+{
+  "Dhcp4": {
+    "interfaces-config": {
+      "interfaces": ["ens3"]
+    },
+    "subnet4": [
+      {
+        "id": 1,
+        "subnet": "192.168.1.0/24",
+        "pools": [ { "pool": "192.168.1.100 - 192.168.1.200" } ],
+        "option-data": [
+          { "name": "routers", "data": "192.168.1.254" },
+          { "name": "domain-name-servers", "data": "8.8.8.8, 8.8.4.4" },
+        ]
+      }
+    ],
+    "valid-lifetime": 4000,
+    "loggers": [
+      {
+        "name": "kea-dhcp4",
+        "output_options": [
+          {
+
+                "output": "stdout",
+
+                "pattern": "%-5p %m\n",
+
+            }
+        ],
+        "severity": "INFO"
+      }
+    ]
+  }
+}
+
+
+

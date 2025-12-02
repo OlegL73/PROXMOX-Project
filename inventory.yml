@@ -1,0 +1,42 @@
+
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  children:
+    webservers:
+      hosts:
+        web1:
+          ansible_host: 192.168.1.30
+          ansible_user: osboxes
+        web2:
+          ansible_host: 192.168.1.40
+          ansible_user: osboxes
+
+    database_servers:
+      hosts:
+        db:
+          ansible_host: 192.168.1.50
+          ansible_user: osboxes
+
+    dhcp_servers:
+      hosts:
+        dhcp:
+          ansible_host: 192.168.1.10
+
+    dns_servers:
+      hosts:
+        dns:
+          ansible_host: 192.168.1.20
+          ansible_user: osboxes
+
+    haproxy_servers:
+      hosts:
+        haproxy:
+          ansible_host: 192.168.1.70
+
+    backup_servers:
+      hosts:
+        backup:
+          ansible_host: 192.168.1.60
+          ansible_user: osboxes

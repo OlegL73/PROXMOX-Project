@@ -1,0 +1,8 @@
+haproxy_package: haproxy
+haproxy_service: haproxy
+haproxy_config_path: /etc/haproxy/haproxy.cfg
+haproxy_owner: root
+haproxy_group: root
+haproxy_mode: '0644'
+
+

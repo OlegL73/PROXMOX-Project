@@ -1,0 +1,6 @@
+---
+- name: Redemarrer bind9
+  become: true
+  service:
+    name: bind9
+    state: restarted

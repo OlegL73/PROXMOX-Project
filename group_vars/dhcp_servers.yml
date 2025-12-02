@@ -1,0 +1,5 @@
+kea_package: kea-dhcp4-server
+kea_config_path: /etc/kea/kea-dhcp4.conf
+kea_owner: root
+kea_group: root
+kea_mode: '0644'

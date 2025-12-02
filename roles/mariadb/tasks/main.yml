@@ -1,0 +1,35 @@
+---
+- name: Installer dépendance Python pour MySQL
+  ansible.builtin.package:
+    name: python3-pymysql
+    state: present
+
+- name: Installer MariaDB
+  ansible.builtin.package:
+    name: "{{ mysql_package }}"
+    state: present
+
+- name: Activer et démarrer le service MariaDB
+  ansible.builtin.service:
+    name: "{{ mysql_service }}"
+    state: started
+    enabled: true
+
+- name: Déployer le fichier de configuration personnalisé
+  ansible.builtin.template:
+    src: mariadb.cnf.j2
+    dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+    mode: '0644'
+  notify: restart mariadb
+
+- name: Créer la base de données
+  community.mysql.mysql_db:
+    name: "{{ item.name }}"
+    encoding: "{{ item.encoding }}"
+    collation: "{{ item.collation }}"
+    state: present
+    login_user: root
+    login_host: 127.0.0.1
+    check_implicit_admin: true
+  loop: "{{ mysql_databases }}"
+

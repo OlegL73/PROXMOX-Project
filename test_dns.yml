@@ -1,0 +1,7 @@
+---
+- name: Configuration du serveur DNS
+  hosts: dns_servers
+  become: true
+
+  roles:
+    - dns

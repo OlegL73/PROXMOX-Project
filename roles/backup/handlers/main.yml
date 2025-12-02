@@ -1,0 +1,6 @@
+---
+- name: Redemarrer bacula-director
+  become: true
+  service:
+    name: bacula-director.service
+    state: restarted

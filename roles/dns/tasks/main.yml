@@ -1,0 +1,47 @@
+---
+- name: Installer les paquets DNS (bind9 + outils)
+  become: true
+  apt:
+    name:
+      - bind9
+      - bind9utils
+    state: present
+    update_cache: true
+
+- name: Deployer /etc/bind/named.conf.local depuis le template
+  become: true
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redemarrer bind9
+
+- name: Deployer le fichier de zone {{ zone_name }}
+  become: true
+  template:
+    src: db.proxmox.lan.j2
+    dest: "{{ zone_file_path }}"
+    owner: root
+    group: bind
+    mode: "0644"
+  notify: Redemarrer bind9
+
+- name: S'assurer que le service bind9 est active et demarre
+  become: true
+  service:
+    name: bind9
+    state: started
+    enabled: true
+
+- name: Verifier la configuration global de bind9
+  become: true
+  command: named-checkconf
+  changed_when: false
+
+- name: Verifier la zone {{ zone_name }}
+  become: true
+  command: named-checkzone "{{ zone_name }}" "{{ zone_file_path }}"
+  register: named_checkzone
+  changed_when: false
