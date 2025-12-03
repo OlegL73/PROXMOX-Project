@@ -1,0 +1,50 @@
+---
+# -------------------------------------------------------------------
+# PLAYBOOK : Installation de Bacula (Director, SD, FD et Console)
+# -------------------------------------------------------------------
+- name: Installer Bacula (sans Baculum GUI)
+  hosts: backup_servers
+  become: yes
+
+  tasks:
+
+    - name: Mettre à jour la liste des paquets
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Installer les paquets Bacula
+      ansible.builtin.apt:
+        name: "{{ bacula_packages }}"
+        state: present
+
+    - name: Déployer la configuration du Bacula Director
+      ansible.builtin.template:
+        src: templates/bacula-dir.conf.j2
+        dest: "{{ bacula_dir_conf }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Déployer la configuration du Storage Daemon
+      ansible.builtin.template:
+        src: templates/bacula-sd.conf.j2
+        dest: "{{ bacula_sd_conf }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Déployer la configuration du File Daemon
+      ansible.builtin.template:
+        src: templates/bacula-fd.conf.j2
+        dest: "{{ bacula_fd_conf }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Redémarrer les services Bacula
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      loop: "{{ bacula_services }}"
+

@@ -1,0 +1,37 @@
+
+---
+- name: Définir mot de passe root
+  community.mysql.mysql_user:
+    name: root
+    host: localhost
+    password: "{{ mariadb_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+
+- name: Créer la base cegepdb
+  community.mysql.mysql_db:
+    name: cegepdb
+    state: present
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+
+- name: Créer les utilisateurs applicatifs
+  community.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv }}"
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    state: present
+  loop: "{{ mariadb_users }}"
+
+- name: Vérifier la version MariaDB
+  ansible.builtin.command: "mysql -u root -p{{ mariadb_root_password }} -e 'SELECT VERSION();'"
+  register: sql_version
+  changed_when: false
+
+- name: Afficher la version
+  ansible.builtin.debug:
+    var: sql_version.stdout
+

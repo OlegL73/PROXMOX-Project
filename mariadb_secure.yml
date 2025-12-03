@@ -1,0 +1,6 @@
+
+---
+- name: Sécurisation et configuration avancée MariaDB
+  hosts: database_servers
+  become: true
+  roles:

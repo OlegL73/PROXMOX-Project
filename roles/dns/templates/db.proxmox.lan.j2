@@ -1,19 +1,19 @@
-$TTL 86400
-@   IN SOA dns.proxmox.lan. admin.proxmox.lan. (
-        2025120101  ; Serial
-        3600        ; Refresh
-        1800        ; Retry
-        604800      ; Expire
-        86400 )     ; Negative Cache TTL
+$TTL    604800
+@       IN      SOA     dns.proxmox.lan. admin.proxmox.lan. (
+                             2025120301 ; 
+                             604800 ;
+                             86400 ;
+                             2419200 ;
+                             604800 )
 
-; Serveur de noms
-@   IN NS dns.proxmox.lan.
+@               IN      NS      dns.proxmox.lan.
 
-; Enregistrements A
-dns     IN A 192.168.1.20
-dhcp    IN A 192.168.1.10
-web1    IN A 192.168.1.30
-web2    IN A 192.168.1.40
-bdd     IN A 192.168.1.50
-backup  IN A 192.168.1.60
-haproxy IN A 192.168.1.70
+dns             IN      A       192.168.1.20
+dhcp            IN      A       192.168.1.10
+ansible         IN      A       192.168.1.5
+web1            IN      A       192.168.1.30
+web2            IN      A       192.168.1.40
+bdd             IN      A       192.168.1.50
+backup          IN      A       192.168.1.60
+haproxy         IN      A       192.168.1.70
+

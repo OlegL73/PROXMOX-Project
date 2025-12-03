@@ -8,6 +8,16 @@
     state: present
     update_cache: true
 
+- name: Deployer /etc/bind/named.conf.options depuis le template
+  become: true
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redemarrer bind9
+
 - name: Deployer /etc/bind/named.conf.local depuis le template
   become: true
   template:
@@ -18,11 +28,21 @@
     mode: "0644"
   notify: Redemarrer bind9
 
-- name: Deployer le fichier de zone {{ zone_name }}
+- name: Deployer le fichier de zone directe {{ zone_name }}
   become: true
   template:
     src: db.proxmox.lan.j2
     dest: "{{ zone_file_path }}"
+    owner: root
+    group: bind
+    mode: "0644"
+  notify: Redemarrer bind9
+
+- name: Deployer le fichier de zone inverse 192.168.1.0/24
+  become: true
+  template:
+    src: db.192.168.1.j2
+    dest: /etc/bind/db.192.168.1
     owner: root
     group: bind
     mode: "0644"
@@ -35,13 +55,20 @@
     state: started
     enabled: true
 
-- name: Verifier la configuration global de bind9
+- name: Verifier la configuration globale de bind9
   become: true
   command: named-checkconf
   changed_when: false
 
-- name: Verifier la zone {{ zone_name }}
+- name: Verifier la zone directe {{ zone_name }}
   become: true
   command: named-checkzone "{{ zone_name }}" "{{ zone_file_path }}"
-  register: named_checkzone
+  register: named_checkzone_directe
   changed_when: false
+
+- name: Verifier la zone inverse 1.168.192.in-addr.arpa
+  become: true
+  command: named-checkzone "1.168.192.in-addr.arpa" "/etc/bind/db.192.168.1"
+  register: named_checkzone_inverse
+  changed_when: false
+

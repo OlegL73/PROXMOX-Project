@@ -1,0 +1,16 @@
+Storage {
+  Name = bacula-sd
+  SDPort = 9103
+  WorkingDirectory = "/var/lib/bacula"
+  PidDirectory = "/run/bacula"
+  MaximumConcurrentJobs = 10
+}
+
+Device {
+  Name = FileStorage
+  MediaType = File
+  ArchiveDevice = /var/backups/bacula
+  LabelMedia = yes
+  RandomAccess = yes
+  AutomaticMount = yes
+}

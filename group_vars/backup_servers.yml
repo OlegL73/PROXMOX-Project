@@ -1,0 +1,17 @@
+# Paquets nécessaires pour Bacula Server
+bacula_packages:
+  - bacula-director
+  - bacula-sd
+  - bacula-fd
+  - bacula-console
+
+# Chemins de configuration
+bacula_dir_conf: /etc/bacula/bacula-dir.conf
+bacula_sd_conf: /etc/bacula/bacula-sd.conf
+bacula_fd_conf: /etc/bacula/bacula-fd.conf
+
+# Services Bacula
+bacula_services:
+  - bacula-director
+  - bacula-sd
+  - bacula-fd

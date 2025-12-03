@@ -1,35 +1,46 @@
+
 ---
-- name: Installer dépendance Python pour MySQL
-  ansible.builtin.package:
-    name: python3-pymysql
-    state: present
+# tasks/main.yml
 
 - name: Installer MariaDB
-  ansible.builtin.package:
-    name: "{{ mysql_package }}"
+  ansible.builtin.apt:
+    name: mariadb-server
     state: present
-
-- name: Activer et démarrer le service MariaDB
-  ansible.builtin.service:
-    name: "{{ mysql_service }}"
-    state: started
-    enabled: true
+    update_cache: yes
+  become: true
 
 - name: Déployer le fichier de configuration personnalisé
   ansible.builtin.template:
     src: mariadb.cnf.j2
     dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+    owner: root
+    group: root
     mode: '0644'
-  notify: restart mariadb
+  notify: Redémarrer MariaDB
+  become: true
 
-- name: Créer la base de données
-  community.mysql.mysql_db:
-    name: "{{ item.name }}"
-    encoding: "{{ item.encoding }}"
-    collation: "{{ item.collation }}"
-    state: present
-    login_user: root
-    login_host: 127.0.0.1
-    check_implicit_admin: true
-  loop: "{{ mysql_databases }}"
+- name: Activer et démarrer le service MariaDB
+  ansible.builtin.service:
+    name: mariadb
+    state: started
+    enabled: true
+  become: true
+
+- name: Autoriser MariaDB dans UFW (si UFW actif)
+  ansible.builtin.shell: |
+    ufw status | grep -q "Status: active" && ufw allow 3306/tcp || true
+  changed_when: false
+  become: true
+
+- name: Vérifier que MariaDB écoute localement
+  ansible.builtin.wait_for:
+    host: "127.0.0.1"
+    port: 3306
+    state: started
+    timeout: 30
+  delegate_to: "{{ inventory_hostname }}"
+  become: true
+  changed_when: false
+
+- meta: flush_handlers
 

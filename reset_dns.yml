@@ -1,0 +1,7 @@
+---
+- name: Nettoyage complet du serveur DNS
+  hosts: dns
+  become: true
+
+  roles:
+    - dns_cleanup

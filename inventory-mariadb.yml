@@ -1,0 +1,13 @@
+
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_become: true
+
+database_servers:
+  hosts:
+    bdd:
+      ansible_host: 192.168.1.50
+      ansible_user: osboxes
+      # Si tu utilises une clé SSH :
+      # ansible_ssh_private_key_file: /home/osboxes/.ssh/id_rsa

@@ -1,9 +1,5 @@
-# Configuration MariaDB générée par Ansible
-[mysqld]
-bind-address = {{ mysql_bind_address }}
-datadir = /var/lib/mysql
-socket = /var/run/mysqld/mysqld.sock
 
-# Sécurité et performance
-symbolic-links = 0
-sql_mode = STRICT_ALL_TABLES
+[mysqld]
+bind-address = {{ mariadb_bind_address }}
+port = {{ mariadb_port }}
+

@@ -1,0 +1,14 @@
+Director {
+  Name = bacula-dir
+  DIRport = 9101
+  QueryFile = "/etc/bacula/scripts/query.sql"
+  WorkingDirectory = "/var/lib/bacula"
+  PidDirectory = "/run/bacula"
+  MaximumConcurrentJobs = 10
+  Password = "dirpassword"
+}
+
+Job {
+  Name = "BackupLocal"
+  JobDefs = "DefaultJob"
+}

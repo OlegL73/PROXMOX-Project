@@ -1,0 +1,12 @@
+FileDaemon {
+  Name = bacula-fd
+  FDport = 9102
+  WorkingDirectory = "/var/lib/bacula"
+  PidDirectory = "/run/bacula"
+  MaximumConcurrentJobs = 5
+}
+
+Director {
+  Name = bacula-dir
+  Password = "fdpassword"
+}

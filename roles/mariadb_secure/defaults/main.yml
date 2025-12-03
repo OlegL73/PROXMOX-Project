@@ -1,0 +1,12 @@
+
+mariadb_root_password: "ChangeMe!"
+mariadb_users:
+  - name: web_ro
+    host: "192.168.1.30"
+    password: "ReadOnly123"
+    priv: "cegepdb.*:SELECT"
+  - name: web_rw
+    host: "192.168.1.40"
+    password: "ReadWrite123"
+    priv: "cegepdb.*:SELECT,INSERT,UPDATE,DELETE"
+
