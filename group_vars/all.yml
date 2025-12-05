@@ -1,0 +1,31 @@
+
+# NFS monté sur DB & Web
+backup_mountpoint: /mnt/backup
+
+# Arborescence logique côté NFS
+backup_dir_db: "{{ backup_mountpoint }}/db"
+backup_status_dir: "{{ backup_mountpoint }}/status"
+
+# Bases à sauvegarder
+mariadb_databases:
+  - MGvpc
+
+# Compte utilisé pour les dumps (recommandé : backup_user)
+mariadb_dump_user: backup_user
+mariadb_dump_pass: "BACKUP_PASS"
+
+# Ne pas toucher ta conf MariaDB par défaut
+enable_binlog: false
+
+# Rétention
+backup_retention_days_full: 14
+backup_retention_days_incr: 7
+
+# Cron
+cron_full_hour: "1"
+cron_incr_minute: "15"
+cron_verify_db_hour: "2"
+
+# Restauration de test (ne touche pas la prod)
+restore_suffix: "_staging"
+

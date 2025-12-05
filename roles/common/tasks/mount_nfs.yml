@@ -1,0 +1,20 @@
+
+- name: Install NFS client
+  ansible.builtin.package:
+    name: nfs-common
+    state: present
+
+- name: Ensure mountpoint
+  ansible.builtin.file:
+    path: /mnt/backup
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Mount backup export
+  ansible.posix.mount:
+    path: /mnt/backup
+    src: "{{ hostvars[groups['backup'][0]].inventory_hostname }}:/srv/backups"
+    fstype: nfs
+    state: mounted

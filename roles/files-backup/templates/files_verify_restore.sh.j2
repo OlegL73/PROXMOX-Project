@@ -1,0 +1,19 @@
+
+#!/bin/bash
+set -euo pipefail
+
+DEST="/tmp/restore-test/{{ inventory_hostname }}"
+SRC="/mnt/backup/files/{{ inventory_hostname }}/latest"
+
+rm -rf "$DEST"
+mkdir -p "$DEST"
+
+rsync -a "$SRC/" "$DEST/"
+
+test -d "$DEST/etc" || { echo "[ERROR] /etc missing"; exit 1; }
+test -d "$DEST/var/www" || { echo "[ERROR] /var/www missing"; exit 1; }
+
+command -v md5sum >/dev/null 2>&1 && \
+  find "$DEST/var/www" -type f | head -n 5 | xargs md5sum > "/mnt/backup/status/files_md5_{{ inventory_hostname }}.txt" || true
+
+echo "[OK] Files restore verification done."

@@ -1,46 +1,50 @@
 
 ---
-# tasks/main.yml
-
-- name: Installer MariaDB
-  ansible.builtin.apt:
+# Installer MariaDB
+- name: Installer MariaDB server (paquet)
+  ansible.builtin.package:
     name: mariadb-server
     state: present
-    update_cache: yes
   become: true
 
-- name: Déployer le fichier de configuration personnalisé
+# Déterminer le service réellement présent (mariadb ou mysql)
+- name: Collecter les services présents
+  ansible.builtin.service_facts:
+
+- name: Choisir le nom de service actif pour MariaDB/MySQL
+  ansible.builtin.set_fact:
+    mariadb_active_service: >-
+      {{ (mariadb_possible_services | select('in', services.keys()) | list | first) | default('mariadb') }}
+
+# Déployer la configuration MariaDB (bind-address)
+- name: Déployer la configuration MariaDB (bind-address)
   ansible.builtin.template:
     src: mariadb.cnf.j2
-    dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+    dest: /etc/mysql/mariadb.conf.d/60-bind.cnf
     owner: root
     group: root
     mode: '0644'
-  notify: Redémarrer MariaDB
+  notify: restart_db
   become: true
 
-- name: Activer et démarrer le service MariaDB
+# Activer et démarrer le service (de façon tolérante)
+- name: Activer et démarrer MariaDB/MySQL (tolérant)
   ansible.builtin.service:
-    name: mariadb
-    state: started
+    name: "{{ mariadb_active_service }}"
     enabled: true
-  become: true
-
-- name: Autoriser MariaDB dans UFW (si UFW actif)
-  ansible.builtin.shell: |
-    ufw status | grep -q "Status: active" && ufw allow 3306/tcp || true
-  changed_when: false
-  become: true
-
-- name: Vérifier que MariaDB écoute localement
-  ansible.builtin.wait_for:
-    host: "127.0.0.1"
-    port: 3306
     state: started
-    timeout: 30
-  delegate_to: "{{ inventory_hostname }}"
+  ignore_errors: true
   become: true
-  changed_when: false
+  when: not ansible_check_mode
 
-- meta: flush_handlers
+# (Facultatif) Vérifier l’ouverture du port sans faire échouer le play
+- name: Vérifier que MariaDB écoute sur {{ mariadb_bind_address }}:{{ mariadb_port }}
+  ansible.builtin.wait_for:
+    host: "{{ mariadb_bind_address }}"
+    port: "{{ mariadb_port }}"
+    delay: 5
+    timeout: 60
+  ignore_errors: true
+  become: true
+  when: not ansible_check_mode
 

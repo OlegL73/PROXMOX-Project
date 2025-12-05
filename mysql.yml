@@ -1,0 +1,17 @@
+
+---
+- hosts: backup_servers
+  become: true
+  roles:
+    - mysql
+
+- hosts: bdd
+  become: true
+  roles:
+    - mariadb   # ton rôle existant (install + conf)
+    - mysql
+
+- hosts: webservers
+  become: true
+  roles:
+    - mysql

@@ -1,0 +1,7 @@
+
+---
+galaxy_info:
+  author: "Adélard"
+  description: "Orchestration du laboratoire MySQL (sauvegarde, restauration, incrémentales)"
+  license: "MIT"
+dependencies: []

@@ -1,0 +1,21 @@
+
+#!/bin/bash
+set -euo pipefail
+
+DATE=$(date +%F_%Hh%Mm%Ss)
+TARGET="/mnt/backup/files/{{ inventory_hostname }}/${DATE}"
+
+mkdir -p "$TARGET"
+
+for P in /var/www /etc /var/log; do
+  if [[ -e "$P" ]]; then
+    rsync -a --delete "$P" "$TARGET/"
+  else
+    echo "[WARN] Path not found: $P"
+  fi
+done
+
+ln -sfn "$TARGET" "/mnt/backup/files/{{ inventory_hostname }}/latest"
+
+find "/mnt/backup/files/{{ inventory_hostname }}" -maxdepth 1 -type d -name '20*' -mtime +14 -exec rm -rf {} +
+echo "[OK] Files snapshot: $TARGET"

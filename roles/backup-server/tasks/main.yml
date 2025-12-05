@@ -1,0 +1,44 @@
+
+- name: Install NFS server
+  ansible.builtin.package:
+    name: nfs-kernel-server
+    state: present
+
+- name: Create export root
+  ansible.builtin.file:
+    path: /srv/backups
+    state: directory
+    owner: root
+    group: root
+    mode: '0775'
+
+- name: Ensure subfolders exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0775'
+  loop:
+    - /srv/backups/db
+    - /srv/backups/files
+    - /srv/backups/status
+
+- name: Export to LAN
+  ansible.builtin.copy:
+    dest: /etc/exports
+    content: |
+      /srv/backups 192.168.1.0/24(rw,sync,no_subtree_check,no_root_squash)
+  notify: Restart NFS
+
+- name: Enable NFS
+  ansible.builtin.service:
+    name: nfs-kernel-server
+    state: started
+    enabled: true
+
+# handlers
+- name: Restart NFS
+  ansible.builtin.service:
+    name: nfs-kernel-server
+    state: restarted

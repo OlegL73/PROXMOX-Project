@@ -5,6 +5,7 @@
     name: bind9
     state: stopped
     enabled: false
+  failed_when: false
   ignore_errors: true
 
 - name: Supprimer les paquets DNS (bind9 + outils)

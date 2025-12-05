@@ -1,0 +1,23 @@
+
+---
+# Rôle orchestrateur : appelle les rôles techniques selon le groupe d'hôtes
+
+- name: Préparer NFS sur backup_servers
+  ansible.builtin.include_role:
+    name: backup
+  when: "'backup_servers' in group_names"
+
+- name: Exécuter le labo MySQL sur BDD (import, NFS client, binlogs, dump, script+cron)
+  ansible.builtin.include_role:
+    name: bdd
+  when: "'bdd' in group_names"
+
+- name: Lancer les tests RW depuis web1
+  ansible.builtin.include_role:
+    name: web1
+  when: inventory_hostname == '192.168.1.30'
+
+- name: Lancer les tests RO depuis web2
+  ansible.builtin.include_role:
+    name: web2
+  when: inventory_hostname == '192.168.1.40'

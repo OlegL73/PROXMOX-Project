@@ -1,0 +1,42 @@
+
+#!/bin/bash
+set -euo pipefail
+
+SUFFIX="{{ restore_suffix }}"
+DBS=( {% for db in mariadb_databases %}{{ db }} {% endfor %} )
+
+LATEST_FULL=$(ls -t "{{ backup_dir_db }}/{{ inventory_hostname }}/full_*.sql" | head -n1)
+LATEST_INCR=$(ls -t "{{ backup_dir_db }}/{{ inventory_hostname }}/incr_*.sql" | head -n1 || true)
+
+if [[ -z "$LATEST_FULL" ]]; then
+  echo "[ERROR] No full backup found."
+  exit 1
+fi
+
+for DB in "${DBS[@]}"; do
+  TESTDB="${DB}${SUFFIX}"
+  echo "[INFO] Verify restore into ${TESTDB}"
+
+  mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -e "DROP DATABASE IF EXISTS \`${TESTDB}\`; CREATE DATABASE \`${TESTDB}\`;"
+
+  # Réécrire DB -> TESTDB pour éviter toute collision
+  TMPFULL=$(mktemp)
+  sed -E "s/(\`?)${DB}(\`?)/\1${TESTDB}\2/g" "$LATEST_FULL" > "$TMPFULL"
+  mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' "${TESTDB}" < "$TMPFULL"
+  rm -f "$TMPFULL"
+
+  if [[ -n "${LATEST_INCR:-}" && -f "${LATEST_INCR}" ]]; then
+    TMPINCR=$(mktemp)
+    sed -E "s/(\`?)${DB}(\`?)/\1${TESTDB}\2/g" "$LATEST_INCR" > "$TMPINCR"
+    mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' "${TESTDB}" < "$TMPINCR"
+    rm -f "$TMPINCR"
+  fi
+
+  # Checks
+  mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -D "${TESTDB}" -e "SHOW TABLES;" \
+    | tee "{{ backup_status_dir }}/verify_tables_${TESTDB}.txt"
+
+  mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -D "${TESTDB}" -e "SELECT * FROM produit LIMIT 5;" \
+    | tee "{{ backup_status_dir }}/verify_sample_${TESTDB}.txt" || true
+done
+

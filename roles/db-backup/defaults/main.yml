@@ -1,0 +1,32 @@
+
+# Où le NFS est monté localement (sur DB)
+backup_mountpoint: /mnt/backup
+
+# Arborescence logique (côté NFS)
+backup_dir_db: "{{ backup_mountpoint }}/db"
+backup_status_dir: "{{ backup_mountpoint }}/status"
+
+# Bases à sauvegarder
+mariadb_databases:
+  - MGvpc
+
+# Compte de dump (utilise ansible-vault pour le mot de passe)
+mariadb_dump_user: root
+mariadb_dump_pass: "CHANGER_CECI"
+
+# Activer les binlogs (optionnel).
+# false = le rôle NE MODIFIE PAS ta conf MariaDB.
+enable_binlog: false
+
+# Rétention (jours)
+backup_retention_days_full: 14
+backup_retention_days_incr: 7
+
+# Planification (cron)
+cron_full_hour: "1"       # 01:00
+cron_incr_minute: "15"    # toutes les heures à :15
+cron_verify_db_hour: "2"  # 02:00
+
+# Base de test pour les vérifications (ne touche pas la prod)
+restore_suffix: "_staging"
+

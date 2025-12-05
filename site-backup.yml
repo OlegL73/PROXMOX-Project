@@ -1,0 +1,30 @@
+
+---
+# 1) Préparer le serveur de sauvegarde (export NFS)
+- name: Serveur BACKUP : export NFS
+  hosts: backup
+  become: true
+  roles:
+    - backup-server
+
+# 2) Monter NFS sur DB et Web (clients NFS)
+- name: Monter NFS sur DB et Web
+  hosts: db:web
+  become: true
+  roles:
+    - role: common
+      tasks_from: mount_nfs.yml
+
+# 3) Sauvegarde DB MariaDB + vérification en staging
+- name: Sauvegarde DB (full + incr) + vérification
+  hosts: db
+  become: true
+  roles:
+    - db-backup
+
+# 4) Sauvegarde fichiers Web + vérification
+- name: Sauvegarde fichiers Web (rsync) + vérification
+  hosts: web
+  become: true
+  roles:
+    - files-backup

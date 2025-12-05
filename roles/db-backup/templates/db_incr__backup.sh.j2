@@ -1,0 +1,42 @@
+
+#!/bin/bash
+set -euo pipefail
+
+LAST="{{ backup_status_dir }}/{{ inventory_hostname }}_masterstatus_last.txt"
+DATE=$(date +%F_%Hh%Mm%Ss)
+OUT="{{ backup_dir_db }}/{{ inventory_hostname }}/incr_${DATE}.sql"
+
+# Binlogs actifs ?
+mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -e "SHOW VARIABLES LIKE 'log_bin';" > /tmp/logbin.txt
+if ! grep -q "ON" /tmp/logbin.txt; then
+  echo "[WARN] log_bin is OFF -> skipping incremental."
+  exit 0
+fi
+
+if [[ ! -f "$LAST" ]]; then
+  echo "[WARN] No previous masterstatus; run a full backup first."
+  exit 0
+fi
+
+PREV_BINLOG=$(awk -F': ' '/File:/ {print $2}' "$LAST" | xargs)
+PREV_POS=$(awk -F': ' '/Position:/ {print $2}' "$LAST" | xargs)
+
+CUR="/tmp/master_now.txt"
+mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -e "SHOW MASTER STATUS\G" > "$CUR"
+CUR_BINLOG=$(awk -F': ' '/File:/ {print $2}' "$CUR" | xargs)
+CUR_POS=$(awk -F': ' '/Position:/ {print $2}' "$CUR" | xargs)
+
+echo "[INFO] mysqlbinlog from ${PREV_BINLOG}:${PREV_POS} to ${CUR_BINLOG}:${CUR_POS}"
+
+# Gestion simple : même fichier binlog
+if [[ "$PREV_BINLOG" != "$CUR_BINLOG" ]]; then
+  echo "[WARN] Binlog rotated; perform a new full backup to reset baseline."
+  exit 0
+fi
+
+mysqlbinlog --start-position="${PREV_POS}" --stop-position="${CUR_POS}" "/var/lib/mysql/${PREV_BINLOG}" > "$OUT"
+cp "$CUR" "$LAST"
+echo "[OK] Incremental written: $OUT"
+
+# Rétention
+find "{{ backup_dir_db }}/{{ inventory_hostname }}" -name 'incr_*.sql' -mtime +{{ backup_retention_days_incr }} -delete

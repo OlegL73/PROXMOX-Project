@@ -1,0 +1,27 @@
+
+#!/bin/bash
+set -euo pipefail
+
+DATE=$(date +%F_%Hh%Mm%Ss)
+OUT="{{ backup_dir_db }}/{{ inventory_hostname }}/full_${DATE}.sql"
+STATUS="{{ backup_status_dir }}/{{ inventory_hostname }}_masterstatus_${DATE}.txt"
+LAST="{{ backup_status_dir }}/{{ inventory_hostname }}_masterstatus_last.txt"
+
+echo "[INFO] Full dump -> $OUT"
+
+mysqldump -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' \
+  --databases {% for db in mariadb_databases %} {{ db }} {% endfor %} \
+  --routines --events --triggers --single-transaction --flush-logs \
+  > "$OUT"
+
+# Enregistrer position binlog si actif
+mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -e "SHOW VARIABLES LIKE 'log_bin';" > /tmp/logbin.txt
+if grep -q "ON" /tmp/logbin.txt; then
+  mysql -u{{ mariadb_dump_user }} -p'{{ mariadb_dump_pass }}' -e "SHOW MASTER STATUS\G" > "$STATUS"
+  cp "$STATUS" "$LAST"
+  echo "[INFO] Binlog status saved: $STATUS"
+else
+  echo "[WARN] log_bin is OFF -> incremental will be skipped."
+fi
+
+# Rétention

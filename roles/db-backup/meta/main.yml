@@ -1,0 +1,8 @@
+
+---
+galaxy_info:
+  author: "Toi"
+  description: "Scripts et planification de sauvegarde MariaDB + vérification de restauration"
+  license: "MIT"
+dependencies: []
+

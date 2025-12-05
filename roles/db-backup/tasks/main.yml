@@ -1,0 +1,60 @@
+
+---
+# 1) Préparer dossiers sur le montage NFS (déjà monté via rôle 'common')
+- name: Ensure DB backup folders exist on NFS
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0750'
+  loop:
+    - "{{ backup_dir_db }}/{{ inventory_hostname }}"
+    - "{{ backup_status_dir }}"
+  become: true
+
+# 2) (Optionnel) Activer les binlogs SANS toucher si enable_binlog=false
+- name: Optionally enable binlogs
+  when: enable_binlog | default(false)
+  import_tasks: enable_binlog.yml
+
+# 3) Déployer scripts
+- name: Deploy full backup script
+  ansible.builtin.template:
+    src: db_full_backup.sh.j2
+    dest: /usr/local/sbin/db_full_backup.sh
+    mode: '0750'
+
+- name: Deploy incremental backup script
+  ansible.builtin.template:
+    src: db_incr_backup.sh.j2
+    dest: /usr/local/sbin/db_incr_backup.sh
+    mode: '0750'
+
+- name: Deploy verify-restore script
+  ansible.builtin.template:
+    src: db_verify_restore.sh.j2
+    dest: /usr/local/sbin/db_verify_restore.sh
+    mode: '0750'
+
+# 4) Planifier (cron)
+- name: Cron - DB full backup (daily)
+  ansible.builtin.cron:
+    name: "DB full backup"
+    minute: "0"
+    hour: "{{ cron_full_hour }}"
+    user: root
+    job: "/usr/local/sbin/db_full_backup.sh"
+
+- name: Cron - DB incremental backup (hourly)
+  ansible.builtin.cron:
+    name: "DB incremental backup"
+    minute: "{{ cron_incr_minute }}"
+    hour: "*"
+    user: root
+    job: "/usr/local/sbin/db_incr_backup.sh"
+
+- name: Cron - DB restore verification (daily)
+  ansible.builtin.cron:
+    name: "DB backup restore verification"
+    minute: "0"
+    hour: "{{ cron_verify_db_hour }}"
+    user: root
